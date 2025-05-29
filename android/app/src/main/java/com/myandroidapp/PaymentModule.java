@@ -60,7 +60,7 @@ public class PaymentModule extends ReactContextBaseJavaModule {
             // Intent do zewnętrznej aplikacji płatniczej
             Intent intent = new Intent("com.worldline.payment.action.PROCESS_TRANSACTION");
             intent.putExtra("WPI_SERVICE_TYPE", "WPI_SVC_PAYMENT");
-            intent.putExtra("WPI_VERSION", "2.2ko");
+            intent.putExtra("WPI_VERSION", "2.2");
             intent.putExtra("WPI_SESSION_ID", UUID.randomUUID().toString());
             intent.putExtra("WPI_REQUEST", jsonRequest.toString());
 
