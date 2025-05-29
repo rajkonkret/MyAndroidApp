@@ -42,7 +42,7 @@ public class PaymentModule extends ReactContextBaseJavaModule {
             intent.putExtra("WPI_SERVICE_TYPE", "WPI_SVC_PAYMENT");
             intent.putExtra("WPI_REQUEST", json);
             intent.putExtra("WPI_VERSION", "2.2");
-            intent.putExtra("WPI_SESSION_ID", "ABC123"); // ← tu wstaw getSessionId()
+            intent.putExtra("WPI_SESSION_ID", UUID.randomUUID().toString()) // ← tu wstaw getSessionId()
 
             Activity activity = getCurrentActivity();
             if (activity != null) {
