@@ -49,4 +49,12 @@ jobs:
         with:
           name: app-debug.apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          
+      - name: Bundle JS for Android
+        run: |
+          mkdir -p android/app/src/main/assets
+          npx react-native bundle \
+          --platform android \
+          --dev true \
+          --entry-file index.js \
+          --bundle-output android/app/src/main/assets/index.android.bundle \
+          --assets-dest android/app/src/main/res
