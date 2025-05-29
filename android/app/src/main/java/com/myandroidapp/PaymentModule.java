@@ -13,7 +13,11 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 
+import org.json.JSONObject;
+
+import java.util.Collections;
 import java.util.UUID;
 
 public class PaymentModule extends ReactContextBaseJavaModule {
@@ -23,8 +27,6 @@ public class PaymentModule extends ReactContextBaseJavaModule {
 
     public PaymentModule(ReactApplicationContext reactContext) {
         super(reactContext);
-
-        // Rejestrujemy listener, który będzie odbierał wyniki
         reactContext.addActivityEventListener(activityEventListener);
     }
 
@@ -35,7 +37,7 @@ public class PaymentModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void makePayment(String json, Promise promise) {
+    public void makePayment(ReadableMap paymentData, Promise promise) {
         Activity activity = getCurrentActivity();
 
         if (activity == null) {
@@ -43,23 +45,35 @@ public class PaymentModule extends ReactContextBaseJavaModule {
             return;
         }
 
-        Intent intent = new Intent("com.worldline.payment.action.PROCESS_TRANSACTION");
-        intent.putExtra("WPI_SERVICE_TYPE", "WPI_SVC_PAYMENT");
-        intent.putExtra("WPI_REQUEST", json);
-        intent.putExtra("WPI_VERSION", "2.2ko");
-        intent.putExtra("WPI_SESSION_ID", UUID.randomUUID().toString());
-
-        this.paymentPromise = promise;
-
         try {
+            int amount = paymentData.getInt("amount");
+            String number = paymentData.getString("number");
+            int operatorId = paymentData.getInt("operatorId");
+
+            // Budujemy dane transakcji jako JSON
+            JSONObject jsonRequest = new JSONObject();
+            jsonRequest.put("requestedAmount", amount);
+            jsonRequest.put("currency", "PLN");
+            jsonRequest.put("reference", "OP_" + operatorId + "_" + number + "_" + amount);
+            jsonRequest.put("receiptFormat", Collections.singletonList("JSON"));
+
+            // Intent do zewnętrznej aplikacji płatniczej
+            Intent intent = new Intent("com.worldline.payment.action.PROCESS_TRANSACTION");
+            intent.putExtra("WPI_SERVICE_TYPE", "WPI_SVC_PAYMENT");
+            intent.putExtra("WPI_VERSION", "2.2ko");
+            intent.putExtra("WPI_SESSION_ID", UUID.randomUUID().toString());
+            intent.putExtra("WPI_REQUEST", jsonRequest.toString());
+
+            this.paymentPromise = promise;
+
             activity.startActivityForResult(intent, PAYMENT_REQUEST_CODE);
+
         } catch (Exception e) {
             this.paymentPromise = null;
             promise.reject("INTENT_ERROR", e.getMessage(), e);
         }
     }
 
-    // Listener do odbierania wyników
     private final ActivityEventListener activityEventListener = new BaseActivityEventListener() {
         @Override
         public void onActivityResult(Activity activity, int requestCode, int resultCode, @Nullable Intent data) {
