@@ -16,7 +16,11 @@ export default function App() {
       .catch((e) => console.error(e));
   };
 
-  return <Button title="Zapłać" onPress={handlePay} />;
+  return (
+  <View style={styles.container}>
+    <Button title="Zapłać" onPress={handlePay} />
+  </View>
+);
 }
 
 const styles = StyleSheet.create({
