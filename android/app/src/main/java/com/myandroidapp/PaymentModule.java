@@ -15,6 +15,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Collections;
@@ -55,7 +56,10 @@ public class PaymentModule extends ReactContextBaseJavaModule {
             jsonRequest.put("requestedAmount", amount);
             jsonRequest.put("currency", "PLN");
             jsonRequest.put("reference", "OP_" + operatorId + "_" + number + "_" + amount);
-            jsonRequest.put("receiptFormat", Collections.singletonList("JSON"));
+            
+            JSONArray receiptFormat = new JSONArray();
+            receiptFormat.put("JSON");
+            jsonRequest.put("receiptFormat", receiptFormat);
 
             // Intent do zewnętrznej aplikacji płatniczej
             Intent intent = new Intent("com.worldline.payment.action.PROCESS_TRANSACTION");
@@ -63,12 +67,14 @@ public class PaymentModule extends ReactContextBaseJavaModule {
             intent.putExtra("WPI_VERSION", "2.2");
             intent.putExtra("WPI_SESSION_ID", UUID.randomUUID().toString());
             intent.putExtra("WPI_REQUEST", jsonRequest.toString());
-
+            Log.d(TAG, "Intent to start payment: " + jsonRequest.toString());
             this.paymentPromise = promise;
 
             activity.startActivityForResult(intent, PAYMENT_REQUEST_CODE);
 
         } catch (Exception e) {
+            Log.e(TAG, "Failed to start payment intent", e);
+            
             this.paymentPromise = null;
             promise.reject("INTENT_ERROR", e.getMessage(), e);
         }
@@ -80,8 +86,10 @@ public class PaymentModule extends ReactContextBaseJavaModule {
             if (requestCode == PAYMENT_REQUEST_CODE && paymentPromise != null) {
                 if (resultCode == Activity.RESULT_OK && data != null) {
                     String response = data.getStringExtra("WPI_RESPONSE");
+                    Log.d(TAG, "Payment result OK: " + response);
                     paymentPromise.resolve(response);
                 } else {
+                    Log.e(TAG, "Payment failed or cancelled");
                     paymentPromise.reject("PAYMENT_FAILED", "Transaction was cancelled or failed");
                 }
 
