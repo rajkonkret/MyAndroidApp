@@ -1,4 +1,4 @@
-public package pl.twoja.aplikacja;
+public package pcom.myandroidapp;
 
 import android.app.Activity;
 import android.content.Intent;
