@@ -24,6 +24,7 @@ import java.util.UUID;
 public class PaymentModule extends ReactContextBaseJavaModule {
 
     private static final int PAYMENT_REQUEST_CODE = 1001;
+    private static final String TAG = "PaymentModule";
     private Promise paymentPromise;
 
     public PaymentModule(ReactApplicationContext reactContext) {
