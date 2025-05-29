@@ -1,9 +1,12 @@
-import React from 'react';
-import { View, Button, Linking, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Button, Text, StyleSheet } from 'react-native';
 import { NativeModules } from 'react-native';
+
 const { PaymentModule } = NativeModules;
 
 export default function App() {
+  const [responseText, setResponseText] = useState('');
+
   const handlePay = () => {
     const paymentData = {
       amount: 500,
@@ -12,15 +15,22 @@ export default function App() {
     };
 
     PaymentModule.makePayment(paymentData)
-      .then(() => console.log('OK'))
-      .catch((e) => console.error(e));
+      .then((response) => {
+        console.log('Payment response:', response);
+        setResponseText(response);
+      })
+      .catch((error) => {
+        console.error('Payment error:', error);
+        setResponseText(`Błąd: ${error.message}`);
+      });
   };
 
   return (
-  <View style={styles.container}>
-    <Button title="Zapłać" onPress={handlePay} />
-  </View>
-);
+    <View style={styles.container}>
+      <Button title="Zapłać" onPress={handlePay} />
+      <Text style={styles.responseText}>{responseText}</Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -28,5 +38,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  responseText: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+    fontSize: 14,
+    color: 'black',
   },
 });
