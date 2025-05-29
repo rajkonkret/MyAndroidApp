@@ -1,16 +1,16 @@
 import React from 'react';
 import { View, Button, Linking, StyleSheet } from 'react-native';
+import { NativeModules } from 'react-native';
 
+const { PaymentModule } = NativeModules;
 export default function App() {
-  const openBrowser = () => {
-    Linking.openURL('https://example.com');
+  const handlePay = () => {
+    PaymentModule.makePayment(1, 500, '500600700')
+      .then(() => console.log('OK'))
+      .catch((e) => console.error(e));
   };
 
-  return (
-    <View style={styles.container}>
-      <Button title="Otwórz stronę" onPress={openBrowser} />
-    </View>
-  );
+  return <Button title="Zapłać" onPress={handlePay} />;
 }
 
 const styles = StyleSheet.create({
