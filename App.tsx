@@ -27,7 +27,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Button title="Zapłać" onPress={handlePay} />
+      <Button title="Zapłać Kartą" onPress={handlePay} />
       <Text style={styles.responseText}>{responseText}</Text>
     </View>
   );
